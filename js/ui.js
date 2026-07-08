@@ -44,8 +44,13 @@ export function renderAgentTable(agents, onAgentClick) {
       <td>${agent.chats}</td>
       <td>${agent.emails}</td>
       <td>${agent.tlReviews}</td>
+      <td>${round(agent.tlReviewPoints)}</td>
+      <td>${agent.reviews}</td>
       <td>${round(agent.reviewPoints)}</td>
+      <td>${agent.disputes}</td>
       <td>${round(agent.disputePoints)}</td>
+      <td>${agent.auditedCalls}</td>
+      <td>${agent.auditedEmails}</td>
       <td>${round(agent.qcPoints)}</td>
       <td>${round(agent.adHocHours)}</td>
       <td>${round(agent.totalPoints)}</td>
@@ -53,7 +58,7 @@ export function renderAgentTable(agents, onAgentClick) {
   `).join("");
 
   if (window.DataTable) {
-    dataTable = new DataTable("#agentTable", { pageLength: 25, order: [[9, "desc"]], responsive: true });
+    dataTable = new DataTable("#agentTable", { pageLength: 25, order: [[14, "desc"]], responsive: true });
   }
 
   document.querySelectorAll("#agentTable tbody tr").forEach((row) => {
@@ -80,7 +85,10 @@ export function openAgentDrawer(agent) {
       <div><span>Calls</span><strong>${agent.calls}</strong></div>
       <div><span>Chats</span><strong>${agent.chats}</strong></div>
       <div><span>Emails</span><strong>${agent.emails}</strong></div>
-      <div><span>QC</span><strong>${agent.qcAudits}</strong></div>
+      <div><span>Reviews</span><strong>${agent.reviews}</strong></div>
+      <div><span>Disputes</span><strong>${agent.disputes}</strong></div>
+      <div><span>Call Audits</span><strong>${agent.auditedCalls}</strong></div>
+      <div><span>Email Audits</span><strong>${agent.auditedEmails}</strong></div>
     </div>
     <h3>Daily KPI Breakdown</h3>
     <table class="detail-table">
