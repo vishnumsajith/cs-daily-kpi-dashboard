@@ -1,5 +1,7 @@
 import { normalizeRows } from "./calculations.js";
 
+const NORMAL_TL_REVIEW_AGENTS = new Set(["lalita lama", "althaf z"]);
+
 export async function readWorkbookFile(file) {
   if (!file) return [];
   const extension = file.name.split(".").pop().toLowerCase();
@@ -66,10 +68,12 @@ function buildTeamProfiles(rows) {
     const kpiCard = String(row["kpi card"] || "").toLowerCase();
     if (team) currentTeam = team;
     if (!agent || agent === "Team Members") return;
+    const normalizedAgent = normalizeName(agent);
+    const isNormalTlReviewAgent = NORMAL_TL_REVIEW_AGENTS.has(normalizedAgent);
     profiles.set(normalizeName(agent), {
       agent,
-      team: currentTeam || "Unassigned",
-      tlReviewEligible: kpiCard.includes("tl review")
+      team: isNormalTlReviewAgent ? "Normal Agents" : currentTeam || "Unassigned",
+      tlReviewEligible: isNormalTlReviewAgent || kpiCard.includes("tl review")
     });
   });
   return profiles;
