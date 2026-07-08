@@ -27,15 +27,20 @@ export function exportPdf(agents, summary) {
 }
 
 function tableRows(agents) {
-  const header = ["Agent", "Calls", "Chats", "Emails", "TL Reviews", "Review Points", "Dispute Points", "QC Points", "Ad Hoc Hours", "Total KPI Points"];
+  const header = ["Agent", "Calls", "Chats", "Emails", "TL Reviews", "TL Review Points", "Reviews Handled", "Review Points", "Disputes Handled", "Dispute Points", "Call Audits", "Email Audits", "QC Points", "Ad Hoc Hours", "Total KPI Points"];
   const body = agents.map((agent) => [
     agent.agent,
     agent.calls,
     agent.chats,
     agent.emails,
     agent.tlReviews,
+    round(agent.tlReviewPoints),
+    agent.reviews,
     round(agent.reviewPoints),
+    agent.disputes,
     round(agent.disputePoints),
+    agent.auditedCalls,
+    agent.auditedEmails,
     round(agent.qcPoints),
     round(agent.adHocHours),
     round(agent.totalPoints)
