@@ -2,6 +2,17 @@ import { renderMiniChart } from "./charts.js";
 
 let dataTable = null;
 
+export function initTableViewControl() {
+  const control = document.getElementById("tableViewFilter");
+  const wrap = document.querySelector(".table-wrap");
+  if (!control || !wrap) return;
+  wrap.dataset.tableView = control.value;
+  control.addEventListener("change", () => {
+    wrap.dataset.tableView = control.value;
+    if (dataTable) dataTable.columns.adjust();
+  });
+}
+
 export function renderKpiCards(summary) {
   const cards = [
     ["Total Agents", summary.totalAgents, [summary.totalAgents, 1]],
@@ -40,19 +51,19 @@ export function renderAgentTable(agents, onAgentClick) {
   tbody.innerHTML = agents.map((agent) => `
     <tr data-agent="${escapeHtml(agent.agent)}">
       <td>${escapeHtml(agent.agent)}</td>
-      <td>${agent.calls}</td>
-      <td>${agent.chats}</td>
-      <td>${agent.emails}</td>
-      <td>${agent.tlReviews}</td>
-      <td>${round(agent.tlReviewPoints)}</td>
-      <td>${agent.reviews}</td>
-      <td>${round(agent.reviewPoints)}</td>
-      <td>${agent.disputes}</td>
-      <td>${round(agent.disputePoints)}</td>
-      <td>${agent.auditedCalls}</td>
-      <td>${agent.auditedEmails}</td>
-      <td>${round(agent.qcPoints)}</td>
-      <td>${round(agent.adHocHours)}</td>
+      <td class="col-raw">${agent.calls}</td>
+      <td class="col-raw">${agent.chats}</td>
+      <td class="col-raw">${agent.emails}</td>
+      <td class="col-raw">${agent.tlReviews}</td>
+      <td class="col-raw col-tl-points">${round(agent.tlReviewPoints)}</td>
+      <td class="col-review">${agent.reviews}</td>
+      <td class="col-review col-review-points">${round(agent.reviewPoints)}</td>
+      <td class="col-dispute">${agent.disputes}</td>
+      <td class="col-dispute col-dispute-points">${round(agent.disputePoints)}</td>
+      <td class="col-qc">${agent.auditedCalls}</td>
+      <td class="col-qc">${agent.auditedEmails}</td>
+      <td class="col-qc col-qc-points">${round(agent.qcPoints)}</td>
+      <td class="col-adhoc">${round(agent.adHocHours)}</td>
       <td>${round(agent.totalPoints)}</td>
     </tr>
   `).join("");
