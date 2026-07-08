@@ -132,6 +132,22 @@
                 <option value="custom">Custom Selection</option>
               </select>
             </label>
+            <label class="table-view-control table-density-control">
+              <span>Column Width</span>
+              <select id="tableDensityControl">
+                <option value="compact">Compact</option>
+                <option value="normal" selected>Normal</option>
+                <option value="wide">Wide</option>
+              </select>
+            </label>
+            <div class="table-align-control" aria-label="Table alignment">
+              <span>Alignment</span>
+              <div class="segmented-control">
+                <button type="button" data-table-align="left">Left</button>
+                <button type="button" data-table-align="center" class="is-active">Center</button>
+                <button type="button" data-table-align="right">Right</button>
+              </div>
+            </div>
             <details class="column-picker" id="columnPicker">
               <summary>Columns</summary>
               <div class="column-picker-menu">
@@ -157,7 +173,7 @@
             </div>
           </div>
         </div>
-        <div class="table-wrap" data-table-view="publish">
+        <div class="table-wrap" data-table-view="publish" data-table-density="normal" data-table-align="center">
           <table id="agentTable" class="display">
             <thead>
               <tr>
