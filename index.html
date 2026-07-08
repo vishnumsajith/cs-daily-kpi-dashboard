@@ -129,8 +129,27 @@
                 <option value="disputes">Disputes</option>
                 <option value="qc">QC Audits</option>
                 <option value="all">All Columns</option>
+                <option value="custom">Custom Selection</option>
               </select>
             </label>
+            <details class="column-picker" id="columnPicker">
+              <summary>Columns</summary>
+              <div class="column-picker-menu">
+                <label><input type="checkbox" data-column-toggle="calls" checked /> Calls</label>
+                <label><input type="checkbox" data-column-toggle="chats" checked /> Chats</label>
+                <label><input type="checkbox" data-column-toggle="emails" checked /> Emails</label>
+                <label><input type="checkbox" data-column-toggle="tl-reviews" checked /> TL Reviews</label>
+                <label><input type="checkbox" data-column-toggle="tl-review-points" checked /> TL Review Points</label>
+                <label><input type="checkbox" data-column-toggle="reviews" checked /> Reviews Handled</label>
+                <label><input type="checkbox" data-column-toggle="review-points" /> Review Points</label>
+                <label><input type="checkbox" data-column-toggle="disputes" checked /> Disputes Handled</label>
+                <label><input type="checkbox" data-column-toggle="dispute-points" /> Dispute Points</label>
+                <label><input type="checkbox" data-column-toggle="call-audits" checked /> Call Audits</label>
+                <label><input type="checkbox" data-column-toggle="email-audits" checked /> Email Audits</label>
+                <label><input type="checkbox" data-column-toggle="qc-points" /> QC Points</label>
+                <label><input type="checkbox" data-column-toggle="ad-hoc" checked /> Ad Hoc Hours</label>
+              </div>
+            </details>
             <div class="export-actions">
               <button class="secondary-button" id="exportCsv" type="button">CSV</button>
               <button class="secondary-button" id="exportExcel" type="button">Excel</button>
@@ -143,19 +162,19 @@
             <thead>
               <tr>
                 <th>Agent</th>
-                <th class="col-raw">Calls</th>
-                <th class="col-raw">Chats</th>
-                <th class="col-raw">Emails</th>
-                <th class="col-raw">TL Reviews</th>
-                <th class="col-raw col-tl-points">TL Review Points</th>
-                <th class="col-review">Reviews Handled</th>
+                <th class="col-raw col-calls">Calls</th>
+                <th class="col-raw col-chats">Chats</th>
+                <th class="col-raw col-emails">Emails</th>
+                <th class="col-raw col-tl-reviews">TL Reviews</th>
+                <th class="col-raw col-tl-points col-tl-review-points">TL Review Points</th>
+                <th class="col-review col-reviews">Reviews Handled</th>
                 <th class="col-review col-review-points">Review Points</th>
-                <th class="col-dispute">Disputes Handled</th>
+                <th class="col-dispute col-disputes">Disputes Handled</th>
                 <th class="col-dispute col-dispute-points">Dispute Points</th>
-                <th class="col-qc">Call Audits</th>
-                <th class="col-qc">Email Audits</th>
+                <th class="col-qc col-call-audits">Call Audits</th>
+                <th class="col-qc col-email-audits">Email Audits</th>
                 <th class="col-qc col-qc-points">QC Points</th>
-                <th class="col-adhoc">Ad Hoc Hours</th>
+                <th class="col-adhoc col-ad-hoc">Ad Hoc Hours</th>
                 <th>Total KPI Points</th>
               </tr>
             </thead>
