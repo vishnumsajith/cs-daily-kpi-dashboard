@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CS Daily KPI Dashboard</title>
+    <meta
+      name="description"
+      content="Automated customer support daily KPI dashboard for operations teams."
+    />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css" />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Operations</p>
+        <h1>CS Daily KPI Dashboard</h1>
+      </div>
+      <div class="header-actions">
+        <div class="refresh-pill">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span>Last refresh</span>
+          <strong id="lastRefresh">Not loaded</strong>
+        </div>
+        <button class="icon-button" id="themeToggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <span id="themeIcon">☾</span>
+        </button>
+        <label class="primary-button" for="reportUpload">
+          <span>Upload Report</span>
+          <input id="reportUpload" type="file" accept=".xlsx,.xls,.csv" hidden />
+        </label>
+      </div>
+    </header>
+
+    <main class="page-shell">
+      <section class="control-band" aria-label="Dashboard filters">
+        <div class="filter-grid">
+          <label>
+            <span>Agent</span>
+            <select id="agentFilter"></select>
+          </label>
+          <label>
+            <span>Team Leader</span>
+            <select id="tlFilter"></select>
+          </label>
+          <label>
+            <span>Team</span>
+            <select id="teamFilter"></select>
+          </label>
+          <label>
+            <span>Date</span>
+            <input id="dateFilter" type="date" />
+          </label>
+          <label>
+            <span>Month</span>
+            <input id="monthFilter" type="month" />
+          </label>
+          <label>
+            <span>Interaction Type</span>
+            <select id="typeFilter"></select>
+          </label>
+        </div>
+        <div class="control-actions">
+          <button class="secondary-button" id="refreshSheets" type="button">Refresh Sheets</button>
+          <button class="secondary-button" id="resetFilters" type="button">Reset</button>
+        </div>
+      </section>
+
+      <section class="state-banner" id="stateBanner">
+        <div>
+          <strong>Ready for today’s report.</strong>
+          <p>Upload the daily interaction workbook. Google Sheet KPI sources load automatically when configured.</p>
+        </div>
+      </section>
+
+      <section class="kpi-grid" id="kpiGrid" aria-label="KPI summary"></section>
+
+      <section class="dashboard-grid">
+        <article class="panel panel-large">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Contribution</p>
+              <h2>KPI Points Mix</h2>
+            </div>
+          </div>
+          <div class="chart-box">
+            <canvas id="pointsMixChart"></canvas>
+          </div>
+        </article>
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Daily</p>
+              <h2>Trend</h2>
+            </div>
+          </div>
+          <div class="chart-box">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </article>
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Team</p>
+              <h2>Stacked Output</h2>
+            </div>
+          </div>
+          <div class="chart-box">
+            <canvas id="teamStackChart"></canvas>
+          </div>
+        </article>
+      </section>
+
+      <section class="table-section">
+        <div class="panel-header table-tools">
+          <div>
+            <p class="eyebrow">Agent performance</p>
+            <h2>Daily KPI Table</h2>
+          </div>
+          <div class="export-actions">
+            <button class="secondary-button" id="exportCsv" type="button">CSV</button>
+            <button class="secondary-button" id="exportExcel" type="button">Excel</button>
+            <button class="secondary-button" id="exportPdf" type="button">PDF</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="agentTable" class="display">
+            <thead>
+              <tr>
+                <th>Agent</th>
+                <th>Calls</th>
+                <th>Chats</th>
+                <th>Emails</th>
+                <th>TL Reviews</th>
+                <th>Review Points</th>
+                <th>Dispute Points</th>
+                <th>QC Points</th>
+                <th>Ad Hoc Hours</th>
+                <th>Total KPI Points</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <aside class="drawer" id="agentDrawer" aria-hidden="true">
+      <div class="drawer-card">
+        <button class="icon-button close-button" id="closeDrawer" type="button" aria-label="Close agent details">×</button>
+        <div id="drawerContent"></div>
+      </div>
+    </aside>
+
+    <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="true"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
