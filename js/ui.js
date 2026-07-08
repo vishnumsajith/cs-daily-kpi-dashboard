@@ -30,6 +30,8 @@ const TABLE_VIEW_COLUMNS = {
 export function initTableViewControl() {
   const control = document.getElementById("tableViewFilter");
   const wrap = document.querySelector(".table-wrap");
+  const densityControl = document.getElementById("tableDensityControl");
+  const alignmentButtons = [...document.querySelectorAll("button[data-table-align]")];
   const checkboxes = [...document.querySelectorAll("[data-column-toggle]")];
   if (!control || !wrap) return;
 
@@ -60,6 +62,22 @@ export function initTableViewControl() {
       control.value = "custom";
       wrap.dataset.tableView = "custom";
       applyColumnVisibility();
+    });
+  });
+
+  if (densityControl) {
+    wrap.dataset.tableDensity = densityControl.value;
+    densityControl.addEventListener("change", () => {
+      wrap.dataset.tableDensity = densityControl.value;
+      if (dataTable) dataTable.columns.adjust();
+    });
+  }
+
+  alignmentButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      alignmentButtons.forEach((item) => item.classList.remove("is-active"));
+      button.classList.add("is-active");
+      wrap.dataset.tableAlign = button.dataset.tableAlign;
     });
   });
 
