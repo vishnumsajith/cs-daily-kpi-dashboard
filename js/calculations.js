@@ -38,7 +38,7 @@ export function buildKpiModel(interactions = [], sheetSources = {}) {
     if (interactionType === "email") addInteractionMetric(agent, "emails", 1, rules.interactionPoints.email, date);
     if (interactionType === "chat") addInteractionMetric(agent, "chats", 1, rules.interactionPoints.chat, date);
     if (interactionType === "tl review" && tlEligibleAgents.has(normalizeName(agentName))) {
-      addInteractionMetric(agent, "tlReviews", 1, rules.interactionPoints["tl review"], date);
+      addInteractionMetric(agent, "tlReviews", 1, rules.interactionPoints["tl review"], date, "tlReviewPoints");
     }
   });
 
@@ -95,10 +95,13 @@ function filterAgentByDateAndType(agent, filters) {
     if (item.type === "qc audit") {
       clone.qcAudits += item.count;
       clone.qcPoints += item.points;
+      clone.auditedCalls += item.auditedCalls || 0;
+      clone.auditedEmails += item.auditedEmails || 0;
     }
     if (item.type === "ad hoc") clone.adHocHours += item.count;
     clone.interactions += item.count;
     clone.totalPoints += item.points;
+    clone.tlReviewPoints += item.type === "tl review" ? item.points : 0;
     clone.disputePoints += item.type === "countered dispute" ? item.points : 0;
   });
 
@@ -175,13 +178,18 @@ function applyQcKpi(rows, ensureAgent, rules) {
     let rowPoints = 0;
     Object.entries(rules.qcPoints).forEach(([column, points]) => {
       const count = toNumber(getValue(row, [column]));
+      if (column === "audited calls") agent.auditedCalls += count;
+      if (column === "audited emails") agent.auditedEmails += count;
       agent.qcAudits += count;
       agent.qcPoints += count * points;
       agent.totalPoints += count * points;
       rowCount += count;
       rowPoints += count * points;
     });
-    addSupplementalDaily(agent, date, "qc audit", rowCount, rowPoints);
+    addSupplementalDaily(agent, date, "qc audit", rowCount, rowPoints, {
+      auditedCalls: toNumber(getValue(row, ["audited calls"])),
+      auditedEmails: toNumber(getValue(row, ["audited emails"]))
+    });
   });
 }
 
@@ -224,11 +232,11 @@ function addMetric(agent, field, count, points, date, pointsField) {
   }
 }
 
-function addInteractionMetric(agent, field, count, points, date) {
+function addInteractionMetric(agent, field, count, points, date, pointsField) {
   const type = normalizeMetricType(field);
   agent.interactions += count;
   addDaily(agent, date, type);
-  addMetric(agent, field, count, points, date);
+  addMetric(agent, field, count, points, date, pointsField);
 }
 
 function addDaily(agent, date, type) {
@@ -238,14 +246,17 @@ function addDaily(agent, date, type) {
   else agent.daily.push({ date, type, count: 1, points: 0 });
 }
 
-function addSupplementalDaily(agent, date, type, count, points) {
+function addSupplementalDaily(agent, date, type, count, points, extras = {}) {
   if (!date || !count) return;
   const existing = agent.daily.find((item) => item.date === date && item.type === type);
   if (existing) {
     existing.count += count;
     existing.points += points;
+    Object.entries(extras).forEach(([key, value]) => {
+      existing[key] = (existing[key] || 0) + value;
+    });
   } else {
-    agent.daily.push({ date, type, count, points });
+    agent.daily.push({ date, type, count, points, ...extras });
   }
 }
 
@@ -282,10 +293,13 @@ function emptyAgent(agent, profile = {}) {
     chats: 0,
     emails: 0,
     tlReviews: 0,
+    tlReviewPoints: 0,
     reviews: 0,
     reviewPoints: 0,
     disputes: 0,
     disputePoints: 0,
+    auditedCalls: 0,
+    auditedEmails: 0,
     qcAudits: 0,
     qcPoints: 0,
     adHocHours: 0,
