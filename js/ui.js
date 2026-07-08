@@ -2,15 +2,68 @@ import { renderMiniChart } from "./charts.js";
 
 let dataTable = null;
 
+const ALL_TABLE_COLUMNS = [
+  "calls",
+  "chats",
+  "emails",
+  "tl-reviews",
+  "tl-review-points",
+  "reviews",
+  "review-points",
+  "disputes",
+  "dispute-points",
+  "call-audits",
+  "email-audits",
+  "qc-points",
+  "ad-hoc"
+];
+
+const TABLE_VIEW_COLUMNS = {
+  publish: ["calls", "chats", "emails", "tl-reviews", "tl-review-points", "reviews", "disputes", "call-audits", "email-audits", "ad-hoc"],
+  raw: ["calls", "chats", "emails", "tl-reviews", "tl-review-points"],
+  reviews: ["reviews", "review-points"],
+  disputes: ["disputes", "dispute-points"],
+  qc: ["call-audits", "email-audits", "qc-points"],
+  all: ALL_TABLE_COLUMNS
+};
+
 export function initTableViewControl() {
   const control = document.getElementById("tableViewFilter");
   const wrap = document.querySelector(".table-wrap");
+  const checkboxes = [...document.querySelectorAll("[data-column-toggle]")];
   if (!control || !wrap) return;
-  wrap.dataset.tableView = control.value;
-  control.addEventListener("change", () => {
-    wrap.dataset.tableView = control.value;
+
+  const applyColumnVisibility = () => {
+    checkboxes.forEach((checkbox) => {
+      document.querySelectorAll(`.col-${checkbox.dataset.columnToggle}`).forEach((cell) => {
+        cell.classList.toggle("is-hidden-column", !checkbox.checked);
+      });
+    });
     if (dataTable) dataTable.columns.adjust();
+  };
+
+  const applyPreset = (view) => {
+    const selectedColumns = TABLE_VIEW_COLUMNS[view] || TABLE_VIEW_COLUMNS.publish;
+    checkboxes.forEach((checkbox) => {
+      checkbox.checked = selectedColumns.includes(checkbox.dataset.columnToggle);
+    });
+    wrap.dataset.tableView = view;
+    applyColumnVisibility();
+  };
+
+  control.addEventListener("change", () => {
+    if (control.value !== "custom") applyPreset(control.value);
   });
+
+  checkboxes.forEach((checkbox) => {
+    checkbox.addEventListener("change", () => {
+      control.value = "custom";
+      wrap.dataset.tableView = "custom";
+      applyColumnVisibility();
+    });
+  });
+
+  applyPreset(control.value);
 }
 
 export function renderKpiCards(summary) {
@@ -51,19 +104,19 @@ export function renderAgentTable(agents, onAgentClick) {
   tbody.innerHTML = agents.map((agent) => `
     <tr data-agent="${escapeHtml(agent.agent)}">
       <td>${escapeHtml(agent.agent)}</td>
-      <td class="col-raw">${agent.calls}</td>
-      <td class="col-raw">${agent.chats}</td>
-      <td class="col-raw">${agent.emails}</td>
-      <td class="col-raw">${agent.tlReviews}</td>
-      <td class="col-raw col-tl-points">${round(agent.tlReviewPoints)}</td>
-      <td class="col-review">${agent.reviews}</td>
+      <td class="col-raw col-calls">${agent.calls}</td>
+      <td class="col-raw col-chats">${agent.chats}</td>
+      <td class="col-raw col-emails">${agent.emails}</td>
+      <td class="col-raw col-tl-reviews">${agent.tlReviews}</td>
+      <td class="col-raw col-tl-points col-tl-review-points">${round(agent.tlReviewPoints)}</td>
+      <td class="col-review col-reviews">${agent.reviews}</td>
       <td class="col-review col-review-points">${round(agent.reviewPoints)}</td>
-      <td class="col-dispute">${agent.disputes}</td>
+      <td class="col-dispute col-disputes">${agent.disputes}</td>
       <td class="col-dispute col-dispute-points">${round(agent.disputePoints)}</td>
-      <td class="col-qc">${agent.auditedCalls}</td>
-      <td class="col-qc">${agent.auditedEmails}</td>
+      <td class="col-qc col-call-audits">${agent.auditedCalls}</td>
+      <td class="col-qc col-email-audits">${agent.auditedEmails}</td>
       <td class="col-qc col-qc-points">${round(agent.qcPoints)}</td>
-      <td class="col-adhoc">${round(agent.adHocHours)}</td>
+      <td class="col-adhoc col-ad-hoc">${round(agent.adHocHours)}</td>
       <td>${round(agent.totalPoints)}</td>
     </tr>
   `).join("");
