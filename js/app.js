@@ -4,7 +4,7 @@ import { buildKpiModel, applyFilters } from "./calculations.js";
 import { initFilters, populateFilters, getFilters, resetFilters } from "./filters.js";
 import { renderCharts } from "./charts.js";
 import { exportCsv, exportExcel, exportPdf } from "./export.js";
-import { renderKpiCards, renderAgentTable, openAgentDrawer, closeAgentDrawer, setBanner, toast } from "./ui.js";
+import { renderKpiCards, renderAgentTable, openAgentDrawer, closeAgentDrawer, setBanner, toast, initTableViewControl } from "./ui.js";
 
 const state = {
   interactions: [],
@@ -42,6 +42,7 @@ function bindEvents() {
   document.getElementById("exportCsv").addEventListener("click", () => exportCsv(state.filteredModel.agents));
   document.getElementById("exportExcel").addEventListener("click", () => exportExcel(state.filteredModel.agents));
   document.getElementById("exportPdf").addEventListener("click", () => exportPdf(state.filteredModel.agents, state.filteredModel.summary));
+  initTableViewControl();
   initFilters(filterElements, applyAndRender);
 }
 
