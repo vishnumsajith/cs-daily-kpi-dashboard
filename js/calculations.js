@@ -70,7 +70,14 @@ export function applyFilters(model, filters) {
 }
 
 function filterAgentByDateAndType(agent, filters) {
-  if (!filters.date && !filters.month && !filters.type) return agent;
+  if (
+  filters.date &&
+  filters.date.length &&
+  !filters.date.includes(item.date)
+) {
+  return false;
+}
+``
 
   const filteredDaily = agent.daily.filter((item) => {
     if (filters.date && item.date !== filters.date) return false;
