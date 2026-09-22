@@ -38,7 +38,6 @@ export function getFilters(elements) {
     tl: elements.tl.value,
     team: elements.team.value,
 
-    // Multiple Date Selection
     date: elements.date.value
       ? elements.date.value.split(",").map((date) => date.trim())
       : [],
@@ -77,11 +76,15 @@ function unique(values) {
 }
 
 function escapeHtml(value) {
-  return String(value).replace(
+  return String(value ?? "").replace(
     /[&<>"']/g,
     (char) =>
       ({
         "&": "&amp;",
         "<": "&lt;",
         ">": "&gt;",
-        '"': "&quot;
+        '"': "&quot;",
+        "'": "&#39;"
+      }[char])
+  );
+}
