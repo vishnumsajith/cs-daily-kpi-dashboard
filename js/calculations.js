@@ -74,8 +74,7 @@ function filterAgentByDateAndType(agent, filters) {
   filters.date &&
   filters.date.length &&
   !filters.date.includes(item.date)
-) {
-  return false;
+) return false;
 }
 ``
 
