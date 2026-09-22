@@ -26,6 +26,12 @@ boot();
 
 async function boot() {
   bindEvents();
+
+  flatpickr("#dateFilter", {
+    mode: "multiple",
+    dateFormat: "Y-m-d"
+  });
+
   render();
   await refreshSheets();
 }
