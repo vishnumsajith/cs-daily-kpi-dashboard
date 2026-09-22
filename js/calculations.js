@@ -70,18 +70,39 @@ export function applyFilters(model, filters) {
 }
 
 function filterAgentByDateAndType(agent, filters) {
+
   if (
-  filters.date &&
-  filters.date.length &&
-  !filters.date.includes(item.date)
-) return false;
-}
-``
+    (!filters.date || !filters.date.length) &&
+    !filters.month &&
+    !filters.type
+  ) {
+    return agent;
+  }
 
   const filteredDaily = agent.daily.filter((item) => {
-    if (filters.date && item.date !== filters.date) return false;
-    if (filters.month && !item.date.startsWith(filters.month)) return false;
-    if (filters.type && item.type !== filters.type) return false;
+
+    if (
+      filters.date &&
+      filters.date.length &&
+      !filters.date.includes(item.date)
+    ) {
+      return false;
+    }
+
+    if (
+      filters.month &&
+      !item.date.startsWith(filters.month)
+    ) {
+      return false;
+    }
+
+    if (
+      filters.type &&
+      item.type !== filters.type
+    ) {
+      return false;
+    }
+
     return true;
   });
 
