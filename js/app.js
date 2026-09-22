@@ -150,3 +150,49 @@ function rebuildModel() {
   state.model = buildKpiModel(
     state.interactions,
     state.sheetSources
+  );
+
+  populateFilters(state.model, filterElements);
+
+  applyAndRender();
+
+  document.getElementById("lastRefresh").textContent =
+    new Date().toLocaleString();
+}
+
+function applyAndRender() {
+  state.filteredModel = applyFilters(
+    state.model,
+    getFilters(filterElements)
+  );
+
+  render();
+}
+
+function render() {
+  renderKpiCards(state.filteredModel.summary);
+
+  renderCharts(state.filteredModel);
+
+  renderAgentTable(
+    state.filteredModel.agents,
+    (agentName) => {
+      const agent = state.filteredModel.agents.find(
+        (item) => item.agent === agentName
+      );
+
+      if (agent) {
+        openAgentDrawer(agent);
+      }
+    }
+  );
+}
+
+function toggleTheme() {
+  document.documentElement.classList.toggle("dark");
+
+  document.getElementById("themeIcon").textContent =
+    document.documentElement.classList.contains("dark")
+      ? "☀"
+      : "☾";
+}
