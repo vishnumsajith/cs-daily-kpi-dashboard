@@ -10,7 +10,8 @@
     />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" />
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css" />
-    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist.css
   </head>
   <body>
     <header class="app-header">
@@ -51,7 +52,11 @@
           </label>
           <label>
             <span>Date</span>
-            <input id="dateFilter" type="text" />
+            <input
+id="dateFilter"
+type="text"
+placeholder="Select Dates"
+/>
           </label>
           <label>
             <span>Month</span>
@@ -168,7 +173,11 @@
             </details>
             <label class="table-view-control">
 <span>Table Dates</span>
-<input id="tableDateFilter" type="text" />
+<input
+id="tableDateFilter"
+type="text"
+placeholder="Select Dates"
+/>
 </label>
             <div class="export-actions">
               <button class="secondary-button" id="exportCsv" type="button">CSV</button>
@@ -219,6 +228,6 @@
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     
-    <script type="module" src="js/app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickrp.jsscript>
   </body>
 </html>
