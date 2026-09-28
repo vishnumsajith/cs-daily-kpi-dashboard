@@ -149,36 +149,113 @@ export function renderAgentTable(agents, onAgentClick) {
 }
 
 export function openAgentDrawer(agent) {
-  const drawer = document.getElementById("agentDrawer");
-  const content = document.getElementById("drawerContent");
-  const dailyRows = [...agent.daily].sort((a, b) => a.date.localeCompare(b.date)).map((item) => `
-    <tr><td>${item.date}</td><td>${titleCase(item.type)}</td><td>${item.count}</td><td>${round(item.points)}</td></tr>
-  `).join("");
-
-  content.innerHTML = `
-    <p class="eyebrow">Agent detail</p>
-    <h2>${escapeHtml(agent.agent)}</h2>
-    <div class="drawer-summary">
-      <span>${escapeHtml(agent.team)}</span>
-      <span>${escapeHtml(agent.tl)}</span>
-      <strong>${round(agent.totalPoints)} pts</strong>
-    </div>
-    <div class="drawer-metrics">
-      <div><span>Calls</span><strong>${agent.calls}</strong></div>
-      <div><span>Chats</span><strong>${agent.chats}</strong></div>
-      <div><span>Emails</span><strong>${agent.emails}</strong></div>
-      <div><span>Reviews</span><strong>${agent.reviews}</strong></div>
-      <div><span>Disputes</span><strong>${agent.disputes}</strong></div>
-      <div><span>Call Audits</span><strong>${agent.auditedCalls}</strong></div>
-      <div><span>Email Audits</span><strong>${agent.auditedEmails}</strong></div>
-    </div>
-    <h3>Daily KPI Breakdown</h3>
-    <table class="detail-table">
-      <thead><tr><th>Date</th><th>Type</th><th>Count</th><th>Points</th></tr></thead>
-      <tbody>${dailyRows || `<tr><td colspan="4">No daily interaction rows in the current filter.</td></tr>`}</tbody>
-    </table>
-  `;
-  drawer.setAttribute("aria-hidden", "false");
+const drawer = document.getElementById("agentDrawer");
+const content = document.getElementById("drawerContent");
+ 
+const dailySummary = {};
+ 
+agent.daily.forEach((item) => {
+if (!dailySummary[item.date]) {
+dailySummary[item.date] = {
+calls: 0,
+chats: 0,
+emails: 0,
+reviews: 0,
+disputes: 0,
+points: 0
+};
+}
+ 
+if (item.type === "call") {
+dailySummary[item.date].calls += item.count;
+}
+ 
+if (item.type === "chat") {
+dailySummary[item.date].chats += item.count;
+}
+ 
+if (item.type === "email") {
+dailySummary[item.date].emails += item.count;
+}
+ 
+if (item.type === "review") {
+dailySummary[item.date].reviews += item.count;
+}
+ 
+if (item.type === "countered dispute") {
+dailySummary[item.date].disputes += item.count;
+}
+ 
+dailySummary[item.date].points += item.points || 0;
+});
+ 
+const dailyRows = Object.entries(dailySummary)
+.sort((a, b) => a[0].localeCompare(b[0]))
+.map(([date, values]) => `
+<tr>
+<td>${date}</td>
+<td>${values.calls}</td>
+<td>${values.chats}</td>
+<td>${values.emails}</td>
+<td>${values.reviews}</td>
+<td>${values.disputes}</td>
+<td>${round(values.points)}</td>
+</tr>
+`)
+.join("");
+ 
+content.innerHTML = `
+<p class="eyebrow">Agent Detail</p>
+ 
+<h2>${escapeHtml(agent.agent)}</h2>
+ 
+<div class="drawer-summary">
+<span>${escapeHtml(agent.team)}</span>
+<span>${escapeHtml(agent.tl)}</span>
+<strong>${round(agent.totalPoints)} pts</strong>
+</div>
+ 
+<div class="drawer-metrics">
+<div><span>Calls</span><strong>${agent.calls}</strong></div>
+<div><span>Chats</span><strong>${agent.chats}</strong></div>
+<div><span>Emails</span><strong>${agent.emails}</strong></div>
+<div><span>Reviews</span><strong>${agent.reviews}</strong></div>
+<div><span>Disputes</span><strong>${agent.disputes}</strong></div>
+<div><span>Call Audits</span><strong>${agent.auditedCalls}</strong></div>
+<div><span>Email Audits</span><strong>${agent.auditedEmails}</strong></div>
+</div>
+ 
+<h3>Daily KPI Breakdown</h3>
+ 
+<table class="detail-table">
+<thead>
+<tr>
+<th>Date</th>
+<th>Calls</th>
+<th>Chats</th>
+<th>Emails</th>
+<th>Reviews</th>
+<th>Disputes</th>
+<th>KPI Points</th>
+</tr>
+</thead>
+ 
+<tbody>
+${
+dailyRows ||
+`
+<tr>
+<td colspan="7">
+No daily interaction rows in the current filter.
+</td>
+</tr>
+`
+}
+</tbody>
+</table>
+`;
+ 
+drawer.setAttribute("aria-hidden", "false");
 }
 
 export function closeAgentDrawer() {
