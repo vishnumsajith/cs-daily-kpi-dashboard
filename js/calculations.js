@@ -59,12 +59,17 @@ export function buildKpiModel(interactions = [], sheetSources = {}) {
 }
 
 export function applyFilters(model, filters) {
+  const effectiveFilters = {
+    ...filters,
+    date: normalizeDateFilterList(filters.date)
+  };
+
   const agents = model.agents.filter((agent) => {
-    if (filters.agent && agent.agent !== filters.agent) return false;
-    if (filters.tl && agent.tl !== filters.tl) return false;
-    if (filters.team && agent.team !== filters.team) return false;
+    if (effectiveFilters.agent && agent.agent !== effectiveFilters.agent) return false;
+    if (effectiveFilters.tl && agent.tl !== effectiveFilters.tl) return false;
+    if (effectiveFilters.team && agent.team !== effectiveFilters.team) return false;
     return true;
-  }).map((agent) => filterAgentByDateAndType(agent, filters));
+  }).map((agent) => filterAgentByDateAndType(agent, effectiveFilters));
 
   return { ...model, agents, summary: summarize(agents) };
 }
@@ -368,9 +373,37 @@ function parseDate(value) {
   if (!value) return "";
   if (typeof value === "number") return excelSerialToDate(value);
   if (/^\d{5}$/.test(String(value).trim())) return excelSerialToDate(Number(value));
-  const date = new Date(value);
+  const raw = String(value).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(raw)) return toIsoDate(raw);
+  const date = new Date(raw);
   if (Number.isNaN(date.getTime())) return "";
   return date.toISOString().slice(0, 10);
+}
+
+/* --- Multi-date filter support ------------------------------------- */
+
+function normalizeDateFilterList(value) {
+  if (!value) return [];
+  const list = Array.isArray(value) ? value : String(value).split(",");
+  const normalized = list.map((item) => toIsoDate(item)).filter(Boolean);
+  return [...new Set(normalized)];
+}
+
+function toIsoDate(value) {
+  if (value === null || value === undefined) return "";
+  const raw = String(value).trim();
+  if (!raw) return "";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+  const match = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (match) {
+    const month = String(Number(match[1])).padStart(2, "0");
+    const day = String(Number(match[2])).padStart(2, "0");
+    return `${match[3]}-${month}-${day}`;
+  }
+  const parsed = new Date(raw);
+  if (!Number.isNaN(parsed.getTime())) return parsed.toISOString().slice(0, 10);
+  return "";
 }
 
 function excelSerialToDate(serial) {
