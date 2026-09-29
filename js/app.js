@@ -44,6 +44,12 @@ function bindEvents() {
 
   document.getElementById("resetFilters").addEventListener("click", () => {
     resetFilters(filterElements);
+    if (window.datePicker) {
+      window.datePicker.clear();
+    }
+    if (window.tableDatePicker) {
+      window.tableDatePicker.clear();
+    }
     applyAndRender();
   });
 
