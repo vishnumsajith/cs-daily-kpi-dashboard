@@ -1,6 +1,9 @@
 import { renderMiniChart } from "./charts.js";
+import { applyFilters } from "./calculations.js";
 
 let dataTable = null;
+let currentAgents = [];
+let currentOnAgentClick = null;
 
 const ALL_TABLE_COLUMNS = [
   "calls",
@@ -81,6 +84,11 @@ export function initTableViewControl() {
     });
   });
 
+  const tableDateInput = document.getElementById("tableDateFilter");
+  if (tableDateInput) {
+    tableDateInput.addEventListener("change", renderTableBody);
+  }
+
   applyPreset(control.value);
 }
 
@@ -113,6 +121,14 @@ export function renderKpiCards(summary) {
 }
 
 export function renderAgentTable(agents, onAgentClick) {
+  currentAgents = agents;
+  currentOnAgentClick = onAgentClick;
+  renderTableBody();
+}
+
+function renderTableBody() {
+  const agents = applyTableDateFilter(currentAgents);
+
   if (dataTable) {
     dataTable.destroy();
     dataTable = null;
@@ -144,118 +160,136 @@ export function renderAgentTable(agents, onAgentClick) {
   }
 
   document.querySelectorAll("#agentTable tbody tr").forEach((row) => {
-    row.addEventListener("click", () => onAgentClick(row.dataset.agent));
+    row.addEventListener("click", () => {
+      const agent = agents.find((item) => item.agent === row.dataset.agent);
+      if (agent) {
+        openAgentDrawer(agent);
+      } else if (currentOnAgentClick) {
+        currentOnAgentClick(row.dataset.agent);
+      }
+    });
   });
 }
 
+/* Applies the Table Dates calendar to the Daily KPI Table only.
+   Reuses applyFilters from calculations.js so the selected dates
+   (e.g. "01/05/2025, 01/08/2025") are normalized exactly the same
+   way as the main Date filter. */
+function applyTableDateFilter(agents) {
+  const input = document.getElementById("tableDateFilter");
+  const raw = input ? input.value.trim() : "";
+  if (!raw) return agents;
+  return applyFilters({ agents }, { date: raw }).agents;
+}
+
 export function openAgentDrawer(agent) {
-const drawer = document.getElementById("agentDrawer");
-const content = document.getElementById("drawerContent");
- 
-const dailySummary = {};
- 
-agent.daily.forEach((item) => {
-if (!dailySummary[item.date]) {
-dailySummary[item.date] = {
-calls: 0,
-chats: 0,
-emails: 0,
-reviews: 0,
-disputes: 0,
-points: 0
-};
-}
- 
-if (item.type === "call") {
-dailySummary[item.date].calls += item.count;
-}
- 
-if (item.type === "chat") {
-dailySummary[item.date].chats += item.count;
-}
- 
-if (item.type === "email") {
-dailySummary[item.date].emails += item.count;
-}
- 
-if (item.type === "review") {
-dailySummary[item.date].reviews += item.count;
-}
- 
-if (item.type === "countered dispute") {
-dailySummary[item.date].disputes += item.count;
-}
- 
-dailySummary[item.date].points += item.points || 0;
-});
- 
-const dailyRows = Object.entries(dailySummary)
-.sort((a, b) => a[0].localeCompare(b[0]))
-.map(([date, values]) => `
-<tr>
-<td>${date}</td>
-<td>${values.calls}</td>
-<td>${values.chats}</td>
-<td>${values.emails}</td>
-<td>${values.reviews}</td>
-<td>${values.disputes}</td>
-<td>${round(values.points)}</td>
-</tr>
-`)
-.join("");
- 
-content.innerHTML = `
-<p class="eyebrow">Agent Detail</p>
- 
-<h2>${escapeHtml(agent.agent)}</h2>
- 
-<div class="drawer-summary">
-<span>${escapeHtml(agent.team)}</span>
-<span>${escapeHtml(agent.tl)}</span>
-<strong>${round(agent.totalPoints)} pts</strong>
-</div>
- 
-<div class="drawer-metrics">
-<div><span>Calls</span><strong>${agent.calls}</strong></div>
-<div><span>Chats</span><strong>${agent.chats}</strong></div>
-<div><span>Emails</span><strong>${agent.emails}</strong></div>
-<div><span>Reviews</span><strong>${agent.reviews}</strong></div>
-<div><span>Disputes</span><strong>${agent.disputes}</strong></div>
-<div><span>Call Audits</span><strong>${agent.auditedCalls}</strong></div>
-<div><span>Email Audits</span><strong>${agent.auditedEmails}</strong></div>
-</div>
- 
-<h3>Daily KPI Breakdown</h3>
- 
-<table class="detail-table">
-<thead>
-<tr>
-<th>Date</th>
-<th>Calls</th>
-<th>Chats</th>
-<th>Emails</th>
-<th>Reviews</th>
-<th>Disputes</th>
-<th>KPI Points</th>
-</tr>
-</thead>
- 
-<tbody>
-${
-dailyRows ||
-`
-<tr>
-<td colspan="7">
-No daily interaction rows in the current filter.
-</td>
-</tr>
-`
-}
-</tbody>
-</table>
-`;
- 
-drawer.setAttribute("aria-hidden", "false");
+  const drawer = document.getElementById("agentDrawer");
+  const content = document.getElementById("drawerContent");
+
+  const dailySummary = {};
+
+  agent.daily.forEach((item) => {
+    if (!dailySummary[item.date]) {
+      dailySummary[item.date] = {
+        calls: 0,
+        chats: 0,
+        emails: 0,
+        reviews: 0,
+        disputes: 0,
+        points: 0
+      };
+    }
+
+    if (item.type === "call") {
+      dailySummary[item.date].calls += item.count;
+    }
+
+    if (item.type === "chat") {
+      dailySummary[item.date].chats += item.count;
+    }
+
+    if (item.type === "email") {
+      dailySummary[item.date].emails += item.count;
+    }
+
+    if (item.type === "review") {
+      dailySummary[item.date].reviews += item.count;
+    }
+
+    if (item.type === "countered dispute") {
+      dailySummary[item.date].disputes += item.count;
+    }
+
+    dailySummary[item.date].points += item.points || 0;
+  });
+
+  const dailyRows = Object.entries(dailySummary)
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([date, values]) => `
+      <tr>
+        <td>${date}</td>
+        <td>${values.calls}</td>
+        <td>${values.chats}</td>
+        <td>${values.emails}</td>
+        <td>${values.reviews}</td>
+        <td>${values.disputes}</td>
+        <td>${round(values.points)}</td>
+      </tr>
+    `)
+    .join("");
+
+  content.innerHTML = `
+    <p class="eyebrow">Agent Detail</p>
+
+    <h2>${escapeHtml(agent.agent)}</h2>
+
+    <div class="drawer-summary">
+      <span>${escapeHtml(agent.team)}</span>
+      <span>${escapeHtml(agent.tl)}</span>
+      <strong>${round(agent.totalPoints)} pts</strong>
+    </div>
+
+    <div class="drawer-metrics">
+      <div><span>Calls</span><strong>${agent.calls}</strong></div>
+      <div><span>Chats</span><strong>${agent.chats}</strong></div>
+      <div><span>Emails</span><strong>${agent.emails}</strong></div>
+      <div><span>Reviews</span><strong>${agent.reviews}</strong></div>
+      <div><span>Disputes</span><strong>${agent.disputes}</strong></div>
+      <div><span>Call Audits</span><strong>${agent.auditedCalls}</strong></div>
+      <div><span>Email Audits</span><strong>${agent.auditedEmails}</strong></div>
+    </div>
+
+    <h3>Daily KPI Breakdown</h3>
+
+    <table class="detail-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Calls</th>
+          <th>Chats</th>
+          <th>Emails</th>
+          <th>Reviews</th>
+          <th>Disputes</th>
+          <th>KPI Points</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        ${
+          dailyRows ||
+          `
+          <tr>
+            <td colspan="7">
+              No daily interaction rows in the current filter.
+            </td>
+          </tr>
+          `
+        }
+      </tbody>
+    </table>
+  `;
+
+  drawer.setAttribute("aria-hidden", "false");
 }
 
 export function closeAgentDrawer() {
