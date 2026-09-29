@@ -10,7 +10,15 @@
     />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" />
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css" />
+    <!-- Flatpickr: calendar for the Date / Table Dates filters -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css" />
     <link rel="stylesheet" href="css/styles.css" />
+    <style>
+      /* Keep the calendar popup above the table, drawer, and toasts */
+      .flatpickr-calendar {
+        z-index: 100000;
+      }
+    </style>
   </head>
   <body>
     <header class="app-header">
@@ -51,7 +59,7 @@
           </label>
           <label>
             <span>Date</span>
-            <input id="dateFilter" type="text" />
+            <input id="dateFilter" type="text" placeholder="Select date(s)" autocomplete="off" />
           </label>
           <label>
             <span>Month</span>
@@ -167,9 +175,9 @@
               </div>
             </details>
             <label class="table-view-control">
-<span>Table Dates</span>
-<input id="tableDateFilter" type="text" />
-</label>
+              <span>Table Dates</span>
+              <input id="tableDateFilter" type="text" placeholder="Select date(s)" autocomplete="off" />
+            </label>
             <div class="export-actions">
               <button class="secondary-button" id="exportCsv" type="button">CSV</button>
               <button class="secondary-button" id="exportExcel" type="button">Excel</button>
@@ -218,7 +226,40 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-    
+    <!-- Flatpickr: multi-date calendar -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+    <script>
+      /* Attach the multi-date calendar to the Date and Table Dates filters.
+         Output format is MM/DD/YYYY (matches your data).
+         Fires native "change" + "input" events so the existing listeners
+         in js/app.js keep working without modification. */
+      (function initCalendars() {
+        if (typeof flatpickr === "undefined") {
+          console.error("Flatpickr failed to load — date filters fall back to plain text inputs.");
+          return;
+        }
+
+        var calendarConfig = {
+          mode: "multiple",      // allows selecting several dates
+          dateFormat: "m/d/Y",   // MM/DD/YYYY in the input
+          allowInput: false,     // input becomes readonly once calendar is active
+          onChange: function (selectedDates, dateStr, instance) {
+            instance.input.dispatchEvent(new Event("input", { bubbles: true }));
+            instance.input.dispatchEvent(new Event("change", { bubbles: true }));
+          }
+        };
+
+        var dateInput = document.getElementById("dateFilter");
+        var tableDateInput = document.getElementById("tableDateFilter");
+
+        if (dateInput) {
+          window.datePicker = flatpickr(dateInput, calendarConfig);
+        }
+        if (tableDateInput) {
+          window.tableDatePicker = flatpickr(tableDateInput, Object.assign({}, calendarConfig));
+        }
+      })();
+    </script>
     <script type="module" src="js/app.js"></script>
   </body>
 </html>
